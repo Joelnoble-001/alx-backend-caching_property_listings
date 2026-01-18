@@ -5,10 +5,24 @@ from .models import Property
 from .utils import get_all_properties
 
 # Cache for 15 minutes (60 sec * 15)
-@cache_page(60 * 15)
+
+@cache_page(60 * 15)  # Cache for 15 minutes
 def property_list(request):
-    properties = Property.objects.all().values("id", "name", "price", "location")  # adjust fields
-    return JsonResponse(list(properties), safe=False)
+    properties = get_all_properties()
+    # Convert queryset to a list of dictionaries
+    data = [
+        {
+            "id": prop.id,
+            "title": prop.title,
+            "description": prop.description,
+            "price": float(prop.price),
+            "location": prop.location,
+            "created_at": prop.created_at.isoformat(),
+        }
+        for prop in properties
+    ]
+    # Return JSON response
+    return JsonResponse({"properties": data})
 
 
 def property_list(request):
@@ -19,3 +33,5 @@ def property_list(request):
         for prop in properties
     ]
     return JsonResponse(properties_data, safe=False)
+
+
