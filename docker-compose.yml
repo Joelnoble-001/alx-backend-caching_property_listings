@@ -1,4 +1,4 @@
-version: '3.9'  # You can remove 'version' too if using recent Docker Compose
+version: '3.9'
 
 services:
   postgres:
@@ -10,6 +10,8 @@ services:
       POSTGRES_DB: property_db
     ports:
       - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data  # <-- Named volume for persistence
 
   redis:
     image: redis:latest
@@ -17,7 +19,8 @@ services:
     ports:
       - "6379:6379"
     volumes:
-      - redis_data:/data  # <-- This line adds the named volume
+      - redis_data:/data  # <-- Redis named volume
 
 volumes:
-  redis_data:  # <-- Define the volume here
+  postgres_data:  # <-- Declare PostgreSQL volume
+  redis_data:     # <-- Declare Redis volume
