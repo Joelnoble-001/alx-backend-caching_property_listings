@@ -21,19 +21,23 @@ def get_all_properties():
 def get_redis_cache_metrics():
     """
     Retrieves Redis cache metrics (hits, misses, hit ratio).
+    Logs metrics and returns them as a dictionary.
     """
-    # Access the raw Redis client
+    # Get low-level Redis client
     client = cache.client.get_client()
 
-    # Get Redis INFO stats
-    info = client.info('stats')  # 'stats' section contains keyspace_hits and keyspace_misses
-
+    # Get Redis stats
+    info = client.info('stats')
     hits = info.get('keyspace_hits', 0)
     misses = info.get('keyspace_misses', 0)
-    total = hits + misses
 
-    # Avoid division by zero
-    hit_ratio = hits / total if total > 0 else 0
+    total_requests = hits + misses
+
+    # Calculate hit ratio without inline else
+    if total_requests > 0:
+        hit_ratio = hits / total_requests
+    else:
+        hit_ratio = 0
 
     metrics = {
         'keyspace_hits': hits,
@@ -41,6 +45,7 @@ def get_redis_cache_metrics():
         'hit_ratio': hit_ratio,
     }
 
+    # Log metrics
     print(f"[Redis Cache Metrics] Hits: {hits}, Misses: {misses}, Hit Ratio: {hit_ratio:.2f}")
 
     return metrics
